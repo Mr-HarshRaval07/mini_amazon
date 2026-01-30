@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-3">Checkout</h3>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div class="mb-2">
+    <label>Full Name</label>
+    <input type="text" name="full_name"
+           class="form-control"
+           value="{{ profile.full_name|default:'' }}"
+           required>
+  </div>
+
+  <div class="mb-2">
+    <label>Email</label>
+    <input type="email" name="email"
+           class="form-control"
+           value="{{ user.email }}"
+           pattern="^[\w\.-]+@[\w\.-]+\.\w+$"
+           required>
+    <small class="text-muted">Enter a valid email</small>
+  </div>
+
+  <div class="mb-2">
+    <label>Phone</label>
+    <input type="text" name="phone"
+           class="form-control"
+           value="{{ profile.phone|default:'' }}"
+           pattern="^[6-9]\d{9}$"
+           required>
+    <small class="text-muted">10 digit Indian number</small>
+  </div>
+
+  <div class="mb-2">
+    <label>Address</label>
+    <textarea name="address"
+              class="form-control"
+              required>{{ profile.address|default:'' }}</textarea>
+  </div>
+
+  <button class="btn btn-success mt-3 w-100">
+    Place Order
+  </button>
+
+</form>
+
+{% endblock %}
