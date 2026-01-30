@@ -1,0 +1,303 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini Amazon</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    background:#f4f6fb;
+}
+
+/* Smooth transitions */
+*{
+    transition: all .25s ease;
+}
+
+/* Cards */
+.product-card{
+    border-radius:18px;
+    background:white;
+}
+
+.product-card:hover{
+    transform: translateY(-10px) scale(1.02);
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+
+/* Buttons */
+.btn{
+    border-radius:12px;
+    font-weight:500;
+}
+
+.btn-primary{
+    background:#6366f1;
+    border:none;
+}
+
+.btn-primary:hover{
+    background:#4f46e5;
+}
+
+.btn-outline-primary{
+    border-color:#6366f1;
+    color:#6366f1;
+}
+
+.btn-outline-primary:hover{
+    background:#6366f1;
+    color:white;
+}
+
+/* Prices */
+.price{
+    color:#22c55e;
+    font-size:1.4rem;
+    font-weight:700;
+}
+
+/* Sidebar */
+.list-group-item{
+    border-radius:10px;
+    margin-bottom:6px;
+}
+
+.list-group-item.active{
+    background:#6366f1;
+    border:none;
+}
+
+/* Navbar */
+.navbar{
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+/* Images hover zoom */
+.product-card img{
+    transition: transform .3s ease;
+}
+
+.product-card:hover img{
+    transform: scale(1.08);
+}
+
+/* Section titles */
+h3,h4{
+    font-weight:700;
+}
+
+/* Soft fade animation */
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(30px)}
+    to{opacity:1;transform:translateY(0)}
+}
+
+.product-card{
+    animation:fadeUp .5s ease;
+}
+
+</style>
+
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar bg-dark p-3">
+  <div class="container-fluid d-flex align-items-center">
+
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold fs-3" href="/">
+<span style="color:#6366f1;">Mini</span>
+<span style="color:#22c55e;">Amazon</span>
+</a>
+
+
+    <!-- Search -->
+    <div class="position-relative flex-grow-1 mx-3">
+
+      <form method="get" action="/search/results/" class="d-flex gap-2">
+
+        <input 
+          id="search-box"
+          name="q"
+          class="form-control"
+          placeholder="Search products..."
+          autocomplete="off"
+          value="{{ request.GET.q|default:'' }}"
+        >
+
+        <button class="btn btn-primary">Search</button>
+      </form>
+
+      <div id="autocomplete-results"
+           class="list-group position-absolute w-100 bg-white"
+           style="top:100%; z-index:1050;">
+      </div>
+
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <div class="d-flex align-items-center gap-4 text-white">
+
+      <a href="/orders/my-orders/" class="text-white text-decoration-none">
+        📦 My Orders
+      </a>
+
+      <!-- Profile Dropdown -->
+      <div class="dropdown">
+
+        <a class="text-white text-decoration-none dropdown-toggle"
+           href="#"
+           data-bs-toggle="dropdown">
+
+          👤 Profile
+
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+
+          <li>
+            <a class="dropdown-item" href="/profile/">
+              My Profile
+            </a>
+          </li>
+
+          <li><hr class="dropdown-divider"></li>
+
+          <li>
+            <a class="dropdown-item text-danger" href="/logout/">
+              Logout
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+    </div>
+    {% else %}
+    <div>
+      <a href="/login/" class="text-white me-3 text-decoration-none">Login</a>
+      <a href="/register/" class="text-white text-decoration-none">Register</a>
+    </div>
+    {% endif %}
+
+  </div>
+</nav>
+{% if request.user.is_authenticated %}
+<div class="bg-light py-2 border-bottom">
+  <div class="container d-flex justify-content-end gap-4">
+
+    <a href="/wishlist/" class="text-decoration-none fw-semibold">
+      ❤️ Wishlist
+    </a>
+
+    <a href="/orders/cart/" class="text-decoration-none fw-semibold">
+      🛒 Cart ({{ cart_count }})
+    </a>
+
+  </div>
+</div>
+{% endif %}
+
+
+<!-- ================= PAGE CONTENT ================= -->
+
+<div class="container mt-3">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div>
+
+
+
+<!-- ================= Bootstrap JS (IMPORTANT FOR CAROUSEL) ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- ================= AUTOCOMPLETE SCRIPT ================= -->
+
+<script>
+
+const input = document.getElementById("search-box");
+const results = document.getElementById("autocomplete-results");
+
+let debounceTimer = null;
+
+input.addEventListener("input", function () {
+
+    const query = input.value.trim();
+
+    clearTimeout(debounceTimer);
+
+    if (query.length === 0) {
+        results.innerHTML = "";
+        results.style.display = "none";
+        return;
+    }
+
+    debounceTimer = setTimeout(() => {
+
+        fetch(`/search/autocomplete/?q=${query}`)
+            .then(response => response.json())
+            .then(data => {
+
+                results.innerHTML = "";
+
+                if (data.length === 0){
+                    results.style.display = "none";
+                    return;
+                }
+
+                results.style.display = "block";
+
+                data.forEach(product => {
+
+                    const item = document.createElement("a");
+
+                    item.href = `/product/${product.id}/`;
+                    item.className = "list-group-item list-group-item-action";
+                    item.textContent = product.name;
+
+                    results.appendChild(item);
+
+                });
+            });
+
+    }, 250);
+});
+
+
+// Hide dropdown when clicking outside
+document.addEventListener("click", function(e){
+
+  if (!results.contains(e.target) && !input.contains(e.target)) {
+      results.innerHTML = "";
+      results.style.display = "none";
+  }
+
+});
+
+</script>
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

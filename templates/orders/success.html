@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Order Successful 🎉</h3>
+
+<p>Your order ID: <strong>#{{ order.id }}</strong></p>
+
+<p>We will deliver to:</p>
+
+<p>
+{{ order.full_name }} <br>
+{{ order.address }} <br>
+{{ order.phone }} <br>
+{{ order.email }}
+</p>
+
+<a href="/" class="btn btn-primary">
+Continue Shopping
+</a>
+
+{% endblock %}

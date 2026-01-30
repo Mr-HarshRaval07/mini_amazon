@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row mt-3">
+
+<!-- ================= LEFT SIDEBAR ================= -->
+<div class="col-md-3 mb-4">
+
+<h5 class="mb-3">Categories</h5>
+
+<ul class="list-group">
+
+{% for cat in categories %}
+<li class="list-group-item p-2 {% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">
+
+<a href="?category={{ cat.id }}"
+class="text-decoration-none d-block
+{% if request.GET.category == cat.id|stringformat:'s' %}
+text-white
+{% else %}
+text-dark
+{% endif %}">
+{{ cat.name }}
+</a>
+
+</li>
+{% endfor %}
+
+</ul>
+
+</div>
+
+
+<!-- ================= RIGHT CONTENT ================= -->
+<div class="col-md-9">
+
+<!-- ================= FILTER BAR ================= -->
+
+<form method="get" class="mb-4 d-flex flex-wrap gap-2 align-items-center">
+
+<input type="hidden" name="q" value="{{ request.GET.q|default:'' }}">
+<input type="hidden" name="category" value="{{ request.GET.category|default:'' }}">
+
+<select name="sort" class="form-select w-auto">
+<option value="">Sort by price</option>
+<option value="low" {% if request.GET.sort == "low" %}selected{% endif %}>Low to High</option>
+<option value="high" {% if request.GET.sort == "high" %}selected{% endif %}>High to Low</option>
+</select>
+
+<input type="number" name="min_price" placeholder="Min price"
+class="form-control w-auto"
+value="{{ request.GET.min_price|default:'' }}">
+
+<input type="number" name="max_price" placeholder="Max price"
+class="form-control w-auto"
+value="{{ request.GET.max_price|default:'' }}">
+
+<button class="btn btn-primary">Apply</button>
+<a href="/" class="btn btn-outline-secondary">Reset</a>
+
+</form>
+
+
+<!-- ================= RECENTLY VIEWED ================= -->
+
+{% if recent_products %}
+<h4 class="mb-3">Recently Viewed</h4>
+
+<div class="row mb-4">
+
+{% for item in recent_products %}
+<div class="col-md-3 col-sm-6 mb-3">
+
+<div class="card product-card shadow-sm p-3 h-100 text-center">
+
+{% if item.product.images.first %}
+<img src="{{ item.product.images.first.image.url }}"
+class="img-fluid rounded mb-2"
+style="height:120px;object-fit:contain;">
+{% endif %}
+
+<h6 class="text-truncate">
+<a href="/product/{{ item.product.id }}/"
+class="text-decoration-none text-dark">
+{{ item.product.name }}
+</a>
+</h6>
+
+<p class="price mb-0">₹{{ item.product.price }}</p>
+
+</div>
+
+</div>
+{% endfor %}
+
+</div>
+<hr>
+{% endif %}
+
+
+<!-- ================= POPULAR PRODUCTS ================= -->
+
+<h4 class="mt-4 mb-3">🔥 Popular Products</h4>
+
+<div class="row mb-4">
+
+{% for product in popular_products %}
+<div class="col-md-3 col-sm-6 mb-3">
+
+<div class="card product-card shadow-sm p-3 h-100 text-center">
+
+{% if product.images.first %}
+<img src="{{ product.images.first.image.url }}"
+class="img-fluid rounded mb-2"
+style="height:120px;object-fit:contain;">
+{% endif %}
+
+<h6 class="text-truncate">
+<a href="/product/{{ product.id }}/"
+class="text-decoration-none text-dark">
+{{ product.name }}
+</a>
+</h6>
+
+<p class="price mb-0">₹{{ product.price }}</p>
+
+</div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<hr>
+
+
+<!-- ================= PRODUCTS ================= -->
+
+<h3 class="mb-3">Products</h3>
+
+<div class="row">
+
+{% for product in products %}
+<div class="col-md-3 col-sm-6 mb-4">
+
+<div class="card product-card shadow-sm h-100 text-center p-3">
+
+{% if product.images.first %}
+<img src="{{ product.images.first.image.url }}"
+class="img-fluid rounded mb-2"
+style="height:180px;object-fit:contain;">
+{% else %}
+<img src="https://via.placeholder.com/180?text=No+Image"
+class="img-fluid rounded mb-2">
+{% endif %}
+
+<h6 class="mt-2 text-truncate">
+<a href="/product/{{ product.id }}/"
+class="text-decoration-none text-dark fw-semibold">
+{{ product.name }}
+</a>
+</h6>
+
+<p class="price mb-2">₹{{ product.price }}</p>
+
+<a href="/product/{{ product.id }}/"
+class="btn btn-outline-primary btn-sm w-100">
+View Details
+</a>
+
+</div>
+
+</div>
+{% endfor %}
+
+</div>
+
+{% if not products %}
+<p class="text-muted">No products found.</p>
+{% endif %}
+
+
+<!-- ================= PAGINATION ================= -->
+
+{% if products.paginator.num_pages > 1 %}
+
+<div class="mt-5 d-flex justify-content-center gap-3 flex-wrap">
+
+{% if products.has_previous %}
+<a class="btn btn-outline-secondary"
+href="?page={{ products.previous_page_number }}&sort={{ request.GET.sort }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&category={{ request.GET.category }}">
+Prev
+</a>
+{% endif %}
+
+<span class="fw-semibold">
+Page {{ products.number }} of {{ products.paginator.num_pages }}
+</span>
+
+{% if products.has_next %}
+<a class="btn btn-outline-secondary"
+href="?page={{ products.next_page_number }}&sort={{ request.GET.sort }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&category={{ request.GET.category }}">
+Next
+</a>
+{% endif %}
+
+</div>
+
+{% endif %}
+
+</div>
+</div>
+
+{% endblock %}

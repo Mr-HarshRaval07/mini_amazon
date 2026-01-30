@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.product-main-img{
+    max-height:400px;
+    object-fit:contain;
+    cursor:zoom-in;
+}
+
+.carousel-control-custom{
+    width:45px;
+    height:45px;
+    background:black;
+    border-radius:50%;
+    top:50%;
+    transform:translateY(-50%);
+    opacity:.8;
+}
+.carousel-control-custom:hover{
+    background:#333;
+    opacity:1;
+}
+
+.zoom-img{
+    transition: transform .3s ease;
+    cursor:zoom-in;
+}
+</style>
+
+<div class="row mb-4">
+
+<!-- ================= IMAGES ================= -->
+
+<div class="col-md-6">
+
+<div id="productCarousel" class="carousel slide">
+
+<div class="carousel-inner">
+
+{% if product.images.exists %}
+  {% for img in product.images.all %}
+  <div class="carousel-item {% if forloop.first %}active{% endif %}">
+    <div class="zoom-trigger">
+      <img src="{{ img.image.url }}" 
+           class="d-block w-100 border rounded product-main-img">
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="carousel-item active">
+    <img src="https://via.placeholder.com/400?text=No+Image"
+         class="d-block w-100 border rounded product-main-img">
+  </div>
+{% endif %}
+
+</div>
+
+{% if product.images.count > 1 %}
+<button class="carousel-control-prev" type="button" 
+        data-bs-target="#productCarousel" data-bs-slide="prev">
+  <span class="carousel-control-prev-icon carousel-control-custom"></span>
+</button>
+
+<button class="carousel-control-next" type="button" 
+        data-bs-target="#productCarousel" data-bs-slide="next">
+  <span class="carousel-control-next-icon carousel-control-custom"></span>
+</button>
+{% endif %}
+
+</div>
+
+</div>
+
+
+<!-- ================= PRODUCT INFO ================= -->
+
+<div class="col-md-6">
+
+<h3>{{ product.name }}</h3>
+
+<!-- ⭐ Rating -->
+<div class="mb-2">
+
+<strong>{{ avg_rating }}/5</strong>
+
+{% for i in "12345" %}
+  {% if forloop.counter <= avg_rating %}
+    ⭐
+  {% else %}
+    ☆
+  {% endif %}
+{% endfor %}
+
+<span class="text-muted">({{ reviews.count }} reviews)</span>
+
+</div>
+
+<p class="fs-4 fw-bold text-success">₹{{ product.price }}</p>
+
+<p>{{ product.description }}</p>
+
+<div class="d-flex gap-2 mt-3">
+
+<a href="/orders/add/{{ product.id }}/" class="btn btn-primary">
+Add to Cart
+</a>
+
+{% if user.is_authenticated %}
+<a href="/wishlist/{{ product.id }}/" class="btn btn-outline-danger">
+❤️ Wishlist
+</a>
+{% else %}
+<a href="/login/?next=/product/{{ product.id }}/" class="btn btn-outline-danger">
+❤️ Wishlist
+</a>
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= SPECIFICATIONS ================= -->
+
+{% if product.specifications %}
+
+<h5>Specifications</h5>
+
+<table class="table table-bordered w-75">
+
+{% for key, value in product.specifications.items %}
+<tr>
+  <th>{{ key|title }}</th>
+  <td>{{ value }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<hr>
+
+{% endif %}
+
+
+<!-- ================= REVIEWS ================= -->
+
+<h4 class="mt-4">Customer Reviews</h4>
+
+{% if reviews.exists %}
+
+{% for r in reviews %}
+
+<div class="border p-3 mb-3 review-box shadow-sm">
+
+
+<strong>{{ r.user.username }}</strong>
+
+<div class="mb-1">
+{% for i in "12345" %}
+  {% if forloop.counter <= r.rating %}
+    ⭐
+  {% else %}
+    ☆
+  {% endif %}
+{% endfor %}
+</div>
+
+<p class="mb-0">{{ r.comment }}</p>
+
+<small class="text-muted">{{ r.created_at|date:"M d, Y" }}</small>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+<p class="text-muted">No reviews yet. Be the first to review!</p>
+{% endif %}
+
+
+{% if user.is_authenticated %}
+<hr>
+
+<h5>Add Your Review</h5>
+
+<form method="POST" action="{% url 'add_review' product.id %}" class="w-50">
+
+{% csrf_token %}
+
+<label class="form-label">Rating</label>
+<select name="rating" class="form-select mb-2" required>
+<option value="">Select rating</option>
+{% for i in "12345" %}
+<option value="{{ forloop.counter }}">{{ forloop.counter }} ⭐</option>
+{% endfor %}
+</select>
+
+<label class="form-label">Comment</label>
+<textarea name="comment" class="form-control mb-2"
+rows="3"
+placeholder="Share your experience..." required></textarea>
+
+<button class="btn btn-success">Submit Review</button>
+
+</form>
+
+{% else %}
+<p>
+<a href="/login/?next=/product/{{ product.id }}/">Login</a> to write a review.
+</p>
+{% endif %}
+
+
+<!-- ================= SIMILAR ================= -->
+
+<h4>Similar Products</h4>
+
+<div class="row">
+
+{% for p in recommendations %}
+<div class="col-md-3 mb-3">
+
+<div class="card p-2 text-center shadow-sm h-100">
+
+{% if p.images.first %}
+<img src="{{ p.images.first.image.url }}"
+     class="img-fluid rounded mb-2"
+     style="height:140px;object-fit:contain;">
+{% else %}
+<img src="https://via.placeholder.com/150"
+     class="img-fluid rounded mb-2">
+{% endif %}
+
+<a href="/product/{{ p.id }}/"
+   class="fw-bold text-decoration-none stretched-link text-dark">
+
+{{ p.name }}
+
+</a>
+
+<p class="fw-semibold mt-2">₹{{ p.price }}</p>
+
+</div>
+
+</div>
+{% endfor %}
+
+</div>
+
+
+<!-- ================= ZOOM MODAL ================= -->
+
+<div class="modal fade" id="zoomModal" tabindex="-1">
+<div class="modal-dialog modal-fullscreen">
+<div class="modal-content bg-dark">
+
+<button type="button" class="btn-close btn-close-white ms-auto m-3"
+        data-bs-dismiss="modal"></button>
+
+<div class="modal-body d-flex justify-content-center align-items-center">
+
+<div id="zoomCarousel" class="carousel slide w-100">
+
+<div class="carousel-inner">
+
+{% for img in product.images.all %}
+<div class="carousel-item {% if forloop.first %}active{% endif %}">
+<img src="{{ img.image.url }}" 
+     class="d-block mx-auto zoom-img"
+     style="max-height:90vh;max-width:100%;object-fit:contain;">
+</div>
+{% endfor %}
+
+</div>
+
+<button class="carousel-control-prev" type="button"
+        data-bs-target="#zoomCarousel" data-bs-slide="prev">
+<span class="carousel-control-prev-icon" style="filter:invert(1);"></span>
+</button>
+
+<button class="carousel-control-next" type="button"
+        data-bs-target="#zoomCarousel" data-bs-slide="next">
+<span class="carousel-control-next-icon" style="filter:invert(1);"></span>
+</button>
+
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const zoomModal = new bootstrap.Modal(
+    document.getElementById("zoomModal")
+)
+
+document.querySelectorAll(".zoom-trigger").forEach((box,i)=>{
+    box.onclick = ()=>{
+        zoomModal.show()
+        bootstrap.Carousel
+        .getOrCreateInstance(
+            document.getElementById("zoomCarousel")
+        ).to(i)
+    }
+})
+
+document.querySelectorAll(".zoom-img").forEach(img=>{
+
+    let zoom=false
+
+    img.onclick = e=>{
+        e.stopPropagation()
+        zoom=!zoom
+        img.style.transform = zoom ? "scale(2)" : "scale(1)"
+        img.style.cursor = zoom ? "zoom-out" : "zoom-in"
+    }
+
+})
+
+})
+
+</script>
+
+{% endblock %}

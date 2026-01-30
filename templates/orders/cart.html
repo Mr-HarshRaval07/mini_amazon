@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Your Cart</h3>
+
+{% if items %}
+  {% for item in items %}
+    <div class="card p-3 mb-2">
+
+      <h5>{{ item.product.name }}</h5>
+      <p>Price: ₹{{ item.product.price }}</p>
+
+      <p>
+        Quantity:
+        <a href="/orders/update/{{ item.id }}/minus/" class="btn btn-sm btn-secondary">−</a>
+        {{ item.quantity }}
+        <a href="/orders/update/{{ item.id }}/plus/" class="btn btn-sm btn-secondary">+</a>
+      </p>
+
+      <p>
+        Subtotal: ₹{{ item.subtotal }}
+      </p>
+
+      <a href="/orders/update/{{ item.id }}/remove/" class="btn btn-danger btn-sm">
+        Remove
+      </a>
+
+    </div>
+  {% endfor %}
+{% else %}
+  <p>Your cart is empty.</p>
+{% endif %}
+
+<h4>Total: ₹{{ total }}</h4>
+
+<a href="/orders/checkout/" class="btn btn-success">
+ Checkout
+</a>
+
+{% endblock %}
