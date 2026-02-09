@@ -51,6 +51,12 @@ class Order(models.Model):
         ("Cancelled", "Cancelled"),
     ]
 
+    PAYMENT_CHOICES = [
+        ("QR", "QR Payment"),
+        ("CARD", "Card Payment"),
+        ("COD", "Cash On Delivery"),
+    ]
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -62,13 +68,28 @@ class Order(models.Model):
     phone = models.CharField(max_length=15)
     address = models.TextField()
 
+    # 🔥 ORDER STATUS
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="Pending"
     )
 
+    # 💳 PAYMENT FIELDS (NEW)
+    payment_method = models.CharField(
+        max_length=10,
+        choices=PAYMENT_CHOICES,
+        blank=True,
+        null=True
+    )
+
+    payment_status = models.CharField(
+        max_length=20,
+        default="Pending"
+    )
+
     total_items = models.PositiveIntegerField(default=0)
+
     total_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -82,10 +103,12 @@ class Order(models.Model):
         indexes = [
             models.Index(fields=["user"]),
             models.Index(fields=["status"]),
+            models.Index(fields=["payment_status"]),  # ⚡ faster filtering
         ]
 
     def __str__(self):
         return f"Order #{self.id} - {self.user}"
+
 
 
 # =====================

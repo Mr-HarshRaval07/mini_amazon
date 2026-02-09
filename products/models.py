@@ -45,6 +45,8 @@ class Product(models.Model):
     specifications = models.JSONField(blank=True, null=True)
 
     image = models.ImageField(upload_to="products/", blank=True, null=True)
+    # 🌐 Professional external image (CDN / URL based)
+    image_url = models.URLField(blank=True, null=True)
 
     # PostgreSQL full-text search
     search_vector = SearchVectorField(null=True, blank=True)

@@ -9,5 +9,5 @@ urlpatterns = [
     path('wishlist/<int:product_id>/', toggle_wishlist, name='toggle_wishlist'),
     path('wishlist/', wishlist_page, name='wishlist_page'),
     path("add-review/<int:product_id>/", add_review, name="add_review"),
-
+    
 ]

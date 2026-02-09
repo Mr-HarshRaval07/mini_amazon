@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Confirm Payment</h3>
+
+<div class="card p-3 shadow">
+
+<p><b>Order ID:</b> {{ order.id }}</p>
+<p><b>Total:</b> ₹{{ order.total_price }}</p>
+
+<h6>Items:</h6>
+
+<ul>
+{% for item in items %}
+<li>{{ item.product.name }} x {{ item.quantity }}</li>
+{% endfor %}
+</ul>
+
+<form method="post">
+{% csrf_token %}
+<button class="btn btn-success w-100">
+Confirm & Pay
+</button>
+</form>
+
+</div>
+
+{% endblock %}

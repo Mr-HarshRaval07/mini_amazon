@@ -1,303 +1,602 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mini Amazon</title>
+<title>Mini Amazon</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
 
+/* ================= THEME ================= */
+
 body{
-    background:#f4f6fb;
+  --bg:#f8fafc;
+  --text:#0f172a;
+  --card:#ffffff;
+  --nav:#0f172a;
+  --navtext:#ffffff;
+  --border:#e5e7eb;
+  --accent:#ffb703;
 }
 
-/* Smooth transitions */
-*{
-    transition: all .25s ease;
+body.dark{
+  --bg:#0b1220;
+  --text:#f1f5f9;
+  --card:#1e293b;
+  --nav:#020617;
+  --navtext:#f1f5f9;
+  --border:#334155;
+  --accent:#fbbf24;
 }
 
-/* Cards */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui, sans-serif;
+  padding-bottom:70px;
+  transition:.3s;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar{
+  background:var(--nav);
+  padding:14px;
+}
+
+.brand{
+  font-size:1.8rem;
+  font-weight:800;
+  color:var(--accent);
+  text-decoration:none;
+}
+
+.nav-item-link{
+  color:var(--navtext);
+  font-weight:600;
+  margin-left:18px;
+  text-decoration:none;
+}
+
+.nav-item-link:hover{
+  color:var(--accent);
+}
+
+.search-box{
+  border-radius:30px;
+  padding:10px 16px;
+  background:var(--card);
+  color:var(--text);
+  border:1px solid var(--border);
+}
+
+/* ================= DROPDOWN ================= */
+
+.dropdown-menu{
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  background:var(--card);
+  color:var(--text);
+}
+
+/* ================= CATEGORY BAR ================= */
+
+.category-bar{
+  background:var(--card);
+  padding:10px 0;
+  box-shadow:0 3px 12px rgba(0,0,0,.06);
+  overflow-x:auto;
+  white-space:nowrap;
+}
+
+.category-bar a{
+  display:inline-block;
+  margin:0 10px;
+  padding:8px 16px;
+  border-radius:20px;
+  background:#f1f5f9;
+  text-decoration:none;
+  font-weight:600;
+  color:var(--text);
+}
+
+body.dark .category-bar a{
+  background:#334155;
+}
+
+.category-bar a.active,
+.category-bar a:hover{
+  background:var(--accent);
+  color:black;
+}
+
+/* ================= PRODUCT CARD ================= */
+
 .product-card{
-    border-radius:18px;
-    background:white;
+  border-radius:20px;
+  background:var(--card);
+  box-shadow:0 8px 25px rgba(0,0,0,.08);
+  transition:.3s;
+  color:var(--text);
 }
 
 .product-card:hover{
-    transform: translateY(-10px) scale(1.02);
-    box-shadow:0 15px 35px rgba(0,0,0,.15);
+  transform:translateY(-6px);
+}
+
+.price{
+  color:#16a34a;
+  font-size:1.3rem;
+  font-weight:700;
+}
+
+/* ================= BOTTOM BAR ================= */
+
+.bottom-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:var(--card);
+  box-shadow:0 -4px 15px rgba(0,0,0,.12);
+  display:flex;
+  justify-content:space-around;
+  padding:12px 0;
+  z-index:3000;
+}
+
+.bottom-bar a{
+  text-decoration:none;
+  font-weight:700;
+  color:var(--text);
+}
+
+.bottom-bar a:hover{
+  color:var(--accent);
+}
+
+/* ================= DARK MODE FIX (FULL) ================= */
+
+body.dark{
+  color: var(--text);
+}
+
+/* Force all text visible */
+
+body.dark *{
+  color: var(--text) !important;
+}
+
+/* Fix Bootstrap components */
+
+body.dark .card,
+body.dark .list-group-item,
+body.dark .dropdown-menu,
+body.dark .alert,
+body.dark .modal-content{
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+/* Inputs & selects */
+
+body.dark input,
+body.dark textarea,
+body.dark select{
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border:1px solid var(--border) !important;
+}
+
+/* Placeholder text */
+
+body.dark input::placeholder{
+  color:#94a3b8 !important;
 }
 
 /* Buttons */
-.btn{
-    border-radius:12px;
-    font-weight:500;
+
+body.dark .btn{
+  color: var(--text) !important;
 }
 
-.btn-primary{
-    background:#6366f1;
-    border:none;
+/* Category bar buttons */
+
+body.dark .category-bar a{
+  color: var(--text) !important;
 }
 
-.btn-primary:hover{
-    background:#4f46e5;
+/* Autocomplete box */
+
+body.dark #autocomplete-results div{
+  color: var(--text) !important;
 }
 
-.btn-outline-primary{
-    border-color:#6366f1;
-    color:#6366f1;
+body.dark #autocomplete-results div:hover{
+  background:#334155;
 }
 
-.btn-outline-primary:hover{
-    background:#6366f1;
-    color:white;
+/* Prices keep green */
+
+body.dark .price{
+  color:#22c55e !important;
 }
 
-/* Prices */
-.price{
-    color:#22c55e;
-    font-size:1.4rem;
-    font-weight:700;
+/* Muted text */
+
+body.dark .text-muted{
+  color:#94a3b8 !important;
 }
 
-/* Sidebar */
-.list-group-item{
-    border-radius:10px;
-    margin-bottom:6px;
-}
+/* ================= MOBILE ================= */
 
-.list-group-item.active{
-    background:#6366f1;
-    border:none;
-}
-
-/* Navbar */
-.navbar{
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-}
-
-/* Images hover zoom */
-.product-card img{
-    transition: transform .3s ease;
-}
-
-.product-card:hover img{
-    transform: scale(1.08);
-}
-
-/* Section titles */
-h3,h4{
-    font-weight:700;
-}
-
-/* Soft fade animation */
-@keyframes fadeUp{
-    from{opacity:0;transform:translateY(30px)}
-    to{opacity:1;transform:translateY(0)}
-}
-
-.product-card{
-    animation:fadeUp .5s ease;
+@media(max-width:768px){
+  .navbar-content{
+    flex-direction:column;
+    gap:10px;
+  }
+  .nav-right{
+    width:100%;
+    justify-content:space-between;
+  }
+  .search-box{
+    width:100%;
+  }
 }
 
 </style>
-
-
 </head>
 
 <body>
 
 <!-- ================= NAVBAR ================= -->
 
-<nav class="navbar bg-dark p-3">
-  <div class="container-fluid d-flex align-items-center">
+<nav class="navbar">
 
-    <!-- Logo -->
-    <a class="navbar-brand fw-bold fs-3" href="/">
-<span style="color:#6366f1;">Mini</span>
-<span style="color:#22c55e;">Amazon</span>
+<div class="container d-flex align-items-center navbar-content">
+
+<a href="/" class="brand">MiniAmazon</a>
+
+<form method="get" action="/search/results/" 
+      class="flex-grow-1 mx-3 position-relative">
+
+<input 
+id="search-box"
+name="q"
+class="form-control search-box"
+placeholder="Search products..."
+autocomplete="off">
+
+<div id="autocomplete-results"
+style="position:absolute;top:100%;left:0;right:0;
+background:var(--card);
+border:1px solid var(--border);
+display:none;
+z-index:9999;">
+</div>
+
+</form>
+
+<div class="d-flex align-items-center nav-right">
+
+<!-- 🌙 DARK MODE BUTTON -->
+<button onclick="toggleTheme()" 
+style="border:none;background:var(--accent);border-radius:50%;
+padding:6px 10px;margin-right:10px;">
+🌙
+</button>
+
+<a href="/orders/my-orders/" class="nav-item-link">My Orders</a>
+
+{% if user.is_authenticated %}
+<div class="dropdown">
+
+<a class="nav-item-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
+My Profile
 </a>
 
+<ul class="dropdown-menu dropdown-menu-end">
 
-    <!-- Search -->
-    <div class="position-relative flex-grow-1 mx-3">
+<li><a class="dropdown-item" href="/profile/">My Profile</a></li>
+<li><hr></li>
+<li><a class="dropdown-item text-danger" href="/logout/">Logout</a></li>
 
-      <form method="get" action="/search/results/" class="d-flex gap-2">
+</ul>
 
-        <input 
-          id="search-box"
-          name="q"
-          class="form-control"
-          placeholder="Search products..."
-          autocomplete="off"
-          value="{{ request.GET.q|default:'' }}"
-        >
+</div>
+{% else %}
+<a href="/login/" class="nav-item-link">Login</a>
+<a href="/register/" class="nav-item-link">Register</a>
+{% endif %}
 
-        <button class="btn btn-primary">Search</button>
-      </form>
+</div>
 
-      <div id="autocomplete-results"
-           class="list-group position-absolute w-100 bg-white"
-           style="top:100%; z-index:1050;">
-      </div>
-
-    </div>
-
-    {% if request.user.is_authenticated %}
-    <div class="d-flex align-items-center gap-4 text-white">
-
-      <a href="/orders/my-orders/" class="text-white text-decoration-none">
-        📦 My Orders
-      </a>
-
-      <!-- Profile Dropdown -->
-      <div class="dropdown">
-
-        <a class="text-white text-decoration-none dropdown-toggle"
-           href="#"
-           data-bs-toggle="dropdown">
-
-          👤 Profile
-
-        </a>
-
-        <ul class="dropdown-menu dropdown-menu-end">
-
-          <li>
-            <a class="dropdown-item" href="/profile/">
-              My Profile
-            </a>
-          </li>
-
-          <li><hr class="dropdown-divider"></li>
-
-          <li>
-            <a class="dropdown-item text-danger" href="/logout/">
-              Logout
-            </a>
-          </li>
-
-        </ul>
-
-      </div>
-
-    </div>
-    {% else %}
-    <div>
-      <a href="/login/" class="text-white me-3 text-decoration-none">Login</a>
-      <a href="/register/" class="text-white text-decoration-none">Register</a>
-    </div>
-    {% endif %}
-
-  </div>
+</div>
 </nav>
-{% if request.user.is_authenticated %}
-<div class="bg-light py-2 border-bottom">
-  <div class="container d-flex justify-content-end gap-4">
 
-    <a href="/wishlist/" class="text-decoration-none fw-semibold">
-      ❤️ Wishlist
-    </a>
+<!-- ================= CATEGORY BAR ================= -->
 
-    <a href="/orders/cart/" class="text-decoration-none fw-semibold">
-      🛒 Cart ({{ cart_count }})
-    </a>
+{% if categories %}
+<div class="category-bar">
+<div class="container">
 
-  </div>
+<a href="/" class="{% if not request.GET.category %}active{% endif %}">All</a>
+
+{% for cat in categories %}
+<a href="?category={{cat.id}}" 
+class="{% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">
+{{ cat.name }}
+</a>
+{% endfor %}
+
+</div>
 </div>
 {% endif %}
 
+<!-- ================= CONTENT ================= -->
 
-<!-- ================= PAGE CONTENT ================= -->
+<div class="container mt-4">
 
-<div class="container mt-3">
+{% if messages %}
+{% for message in messages %}
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
+<div class="alert 
+{% if message.tags == 'error' %}alert-danger
+{% elif message.tags == 'success' %}alert-success
+{% else %}alert-info{% endif %}
+alert-dismissible fade show">
 
-  {% block content %}{% endblock %}
+{{ message }}
+
+<button class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 
+{% endfor %}
+{% endif %}
+{% block content %}{% endblock %}
 
 
-<!-- ================= Bootstrap JS (IMPORTANT FOR CAROUSEL) ================= -->
+</div>
+
+<!-- ================= BOTTOM BAR ================= -->
+
+{% if user.is_authenticated %}
+<div class="bottom-bar">
+<a href="/wishlist/">❤️ Wishlist</a>
+<a href="/orders/cart/">🛒 Cart ({{ cart_count }})</a>
+</div>
+{% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-
-<!-- ================= AUTOCOMPLETE SCRIPT ================= -->
+<!-- ================= AUTOSUGGEST ================= -->
 
 <script>
 
 const input = document.getElementById("search-box");
-const results = document.getElementById("autocomplete-results");
+const box = document.getElementById("autocomplete-results");
 
-let debounceTimer = null;
+if(input){
 
-input.addEventListener("input", function () {
+input.onkeyup = function(){
 
-    const query = input.value.trim();
+let q = input.value;
 
-    clearTimeout(debounceTimer);
+if(q.length === 0){
+  box.style.display="none";
+  box.innerHTML="";
+  return;
+}
 
-    if (query.length === 0) {
-        results.innerHTML = "";
-        results.style.display = "none";
-        return;
-    }
+fetch("/search/autocomplete/?q="+q)
+.then(res=>res.json())
+.then(data=>{
 
-    debounceTimer = setTimeout(() => {
+  box.innerHTML="";
 
-        fetch(`/search/autocomplete/?q=${query}`)
-            .then(response => response.json())
-            .then(data => {
-
-                results.innerHTML = "";
-
-                if (data.length === 0){
-                    results.style.display = "none";
-                    return;
-                }
-
-                results.style.display = "block";
-
-                data.forEach(product => {
-
-                    const item = document.createElement("a");
-
-                    item.href = `/product/${product.id}/`;
-                    item.className = "list-group-item list-group-item-action";
-                    item.textContent = product.name;
-
-                    results.appendChild(item);
-
-                });
-            });
-
-    }, 250);
-});
-
-
-// Hide dropdown when clicking outside
-document.addEventListener("click", function(e){
-
-  if (!results.contains(e.target) && !input.contains(e.target)) {
-      results.innerHTML = "";
-      results.style.display = "none";
+  if(data.length===0){
+    box.style.display="none";
+    return;
   }
 
+  box.style.display="block";
+
+  data.forEach(p=>{
+    box.innerHTML+=`
+      <div style="padding:8px;cursor:pointer"
+      onclick="window.location='/product/${p.id}/'">
+      ${p.name}
+      </div>
+    `;
+  })
+
 });
+}
+}
 
 </script>
-{% block extra_scripts %}{% endblock %}
+
+<!-- ================= DARK MODE ================= -->
+
+<script>
+
+function toggleTheme(){
+  if(document.body.classList.contains("dark")){
+    document.body.classList.remove("dark");
+    localStorage.setItem("theme","light");
+  }else{
+    document.body.classList.add("dark");
+    localStorage.setItem("theme","dark");
+  }
+}
+
+if(localStorage.getItem("theme")==="dark"){
+  document.body.classList.add("dark");
+}
+
+</script>
+<!-- ================= AI CHATBOT ================= -->
+
+<style>
+#chatbot-btn{
+position:fixed;
+bottom:90px;
+right:20px;
+background:#ffb703;
+border:none;
+border-radius:50%;
+width:60px;
+height:60px;
+font-size:26px;
+cursor:pointer;
+box-shadow:0 10px 25px rgba(0,0,0,.3);
+z-index:4000;
+}
+
+#chatbot-box{
+position:fixed;
+bottom:160px;
+right:20px;
+width:320px;
+max-height:420px;
+background:white;
+border-radius:18px;
+box-shadow:0 15px 35px rgba(0,0,0,.25);
+display:none;
+flex-direction:column;
+overflow:hidden;
+z-index:4000;
+}
+
+#chatbot-header{
+background:#0f172a;
+color:white;
+padding:12px;
+font-weight:700;
+text-align:center;
+}
+
+#chatbot-messages{
+flex:1;
+padding:12px;
+overflow-y:auto;
+font-size:14px;
+}
+
+.bot{
+background:#f1f5f9;
+padding:8px 12px;
+border-radius:12px;
+margin-bottom:8px;
+}
+
+.user{
+background:#ffb703;
+padding:8px 12px;
+border-radius:12px;
+margin-bottom:8px;
+text-align:right;
+}
+
+#chatbot-input{
+display:flex;
+border-top:1px solid #ddd;
+}
+
+#chatbot-input input{
+flex:1;
+border:none;
+padding:10px;
+outline:none;
+}
+
+#chatbot-input button{
+border:none;
+background:#0f172a;
+color:white;
+padding:10px 14px;
+cursor:pointer;
+}
+</style>
+
+<button id="chatbot-btn">🤖</button>
+
+<div id="chatbot-box">
+
+<div id="chatbot-header">
+MiniAmazon AI Assistant
+</div>
+
+<div id="chatbot-messages">
+<div class="bot">👋 Hi! Ask me about products, orders, sales or help.</div>
+</div>
+
+<div id="chatbot-input">
+<input id="chatbot-text" placeholder="Type your message...">
+<button onclick="sendMessage()">➤</button>
+</div>
+
+</div>
+
+<script>
+
+const chatBtn = document.getElementById("chatbot-btn");
+const chatBox = document.getElementById("chatbot-box");
+const chatMessages = document.getElementById("chatbot-messages");
+const chatInput = document.getElementById("chatbot-text");
+
+chatBtn.onclick = () => {
+  chatBox.style.display = chatBox.style.display === "flex" ? "none" : "flex";
+  chatBox.style.flexDirection = "column";
+};
+
+
+function addMessage(text, cls){
+  const div = document.createElement("div");
+  div.className = cls;
+  div.innerHTML = text.replace(/\n/g,"<br>");
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+}
+
+function getCSRFToken(){
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+}
+
+function sendMessage(){
+
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+
+  addMessage(msg,"user");
+  chatInput.value = "";
+
+  fetch("/chatbot/send/", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken()
+      },
+      body: JSON.stringify({ message: msg })
+  })
+  .then(res => res.json())
+  .then(data => {
+      addMessage(data.reply,"bot");
+  })
+  .catch(() => {
+      addMessage("⚠️ Server error","bot");
+  });
+}
+
+
+</script>
 
 </body>
 </html>

@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="row mt-3">
+<div class="row mt-3 g-4">
 
 <!-- ================= LEFT SIDEBAR ================= -->
-<div class="col-md-3 mb-4">
+<div class="col-lg-3 col-md-4 col-12 mb-3">
 
-<h5 class="mb-3">Categories</h5>
+<h5 class="mb-3 fw-bold">Categories</h5>
 
 <ul class="list-group">
 
 {% for cat in categories %}
-<li class="list-group-item p-2 {% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">
+<li class="list-group-item p-2 
+{% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">
 
 <a href="?category={{ cat.id }}"
-class="text-decoration-none d-block
+class="text-decoration-none d-block fw-semibold
 {% if request.GET.category == cat.id|stringformat:'s' %}
 text-white
 {% else %}
@@ -32,31 +33,42 @@ text-dark
 
 
 <!-- ================= RIGHT CONTENT ================= -->
-<div class="col-md-9">
+<div class="col-lg-9 col-md-8 col-12">
 
 <!-- ================= FILTER BAR ================= -->
 
-<form method="get" class="mb-4 d-flex flex-wrap gap-2 align-items-center">
+<form method="get" class="mb-4 d-flex flex-wrap align-items-center gap-2">
 
 <input type="hidden" name="q" value="{{ request.GET.q|default:'' }}">
 <input type="hidden" name="category" value="{{ request.GET.category|default:'' }}">
 
-<select name="sort" class="form-select w-auto">
+<select name="sort" class="form-select" style="width:180px;">
 <option value="">Sort by price</option>
 <option value="low" {% if request.GET.sort == "low" %}selected{% endif %}>Low to High</option>
 <option value="high" {% if request.GET.sort == "high" %}selected{% endif %}>High to Low</option>
 </select>
 
 <input type="number" name="min_price" placeholder="Min price"
-class="form-control w-auto"
+class="form-control" style="width:140px;"
 value="{{ request.GET.min_price|default:'' }}">
 
 <input type="number" name="max_price" placeholder="Max price"
-class="form-control w-auto"
+class="form-control" style="width:140px;"
 value="{{ request.GET.max_price|default:'' }}">
 
-<button class="btn btn-primary">Apply</button>
-<a href="/" class="btn btn-outline-secondary">Reset</a>
+<!-- APPLY + RESET SIDE BY SIDE -->
+
+<div class="d-flex gap-2">
+
+<button class="btn btn-primary px-4">
+Apply
+</button>
+
+<a href="/" class="btn btn-outline-secondary px-4">
+Reset
+</a>
+
+</div>
 
 </form>
 
@@ -64,24 +76,24 @@ value="{{ request.GET.max_price|default:'' }}">
 <!-- ================= RECENTLY VIEWED ================= -->
 
 {% if recent_products %}
-<h4 class="mb-3">Recently Viewed</h4>
+<h4 class="mb-3 fw-bold">Recently Viewed</h4>
 
-<div class="row mb-4">
+<div class="row g-3 mb-4">
 
 {% for item in recent_products %}
-<div class="col-md-3 col-sm-6 mb-3">
+<div class="col-lg-3 col-md-4 col-sm-6 col-6">
 
 <div class="card product-card shadow-sm p-3 h-100 text-center">
 
 {% if item.product.images.first %}
 <img src="{{ item.product.images.first.image.url }}"
 class="img-fluid rounded mb-2"
-style="height:120px;object-fit:contain;">
+style="height:130px;object-fit:contain;">
 {% endif %}
 
-<h6 class="text-truncate">
+<h6 class="text-truncate mb-1">
 <a href="/product/{{ item.product.id }}/"
-class="text-decoration-none text-dark">
+class="text-decoration-none text-dark fw-semibold">
 {{ item.product.name }}
 </a>
 </h6>
@@ -100,24 +112,24 @@ class="text-decoration-none text-dark">
 
 <!-- ================= POPULAR PRODUCTS ================= -->
 
-<h4 class="mt-4 mb-3">🔥 Popular Products</h4>
+<h4 class="mt-4 mb-3 fw-bold">🔥 Popular Products</h4>
 
-<div class="row mb-4">
+<div class="row g-3 mb-4">
 
 {% for product in popular_products %}
-<div class="col-md-3 col-sm-6 mb-3">
+<div class="col-lg-3 col-md-4 col-sm-6 col-6">
 
 <div class="card product-card shadow-sm p-3 h-100 text-center">
 
 {% if product.images.first %}
 <img src="{{ product.images.first.image.url }}"
 class="img-fluid rounded mb-2"
-style="height:120px;object-fit:contain;">
+style="height:130px;object-fit:contain;">
 {% endif %}
 
-<h6 class="text-truncate">
+<h6 class="text-truncate mb-1">
 <a href="/product/{{ product.id }}/"
-class="text-decoration-none text-dark">
+class="text-decoration-none text-dark fw-semibold">
 {{ product.name }}
 </a>
 </h6>
@@ -136,12 +148,12 @@ class="text-decoration-none text-dark">
 
 <!-- ================= PRODUCTS ================= -->
 
-<h3 class="mb-3">Products</h3>
+<h3 class="mb-3 fw-bold">Products</h3>
 
-<div class="row">
+<div class="row g-4">
 
 {% for product in products %}
-<div class="col-md-3 col-sm-6 mb-4">
+<div class="col-lg-3 col-md-4 col-sm-6 col-12">
 
 <div class="card product-card shadow-sm h-100 text-center p-3">
 
@@ -161,7 +173,7 @@ class="text-decoration-none text-dark fw-semibold">
 </a>
 </h6>
 
-<p class="price mb-2">₹{{ product.price }}</p>
+<p class="price mb-3">₹{{ product.price }}</p>
 
 <a href="/product/{{ product.id }}/"
 class="btn btn-outline-primary btn-sm w-100">
@@ -176,7 +188,7 @@ View Details
 </div>
 
 {% if not products %}
-<p class="text-muted">No products found.</p>
+<p class="text-muted mt-3">No products found.</p>
 {% endif %}
 
 
@@ -184,7 +196,7 @@ View Details
 
 {% if products.paginator.num_pages > 1 %}
 
-<div class="mt-5 d-flex justify-content-center gap-3 flex-wrap">
+<div class="mt-5 d-flex justify-content-center gap-3 flex-wrap align-items-center">
 
 {% if products.has_previous %}
 <a class="btn btn-outline-secondary"

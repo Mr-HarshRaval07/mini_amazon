@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'orders',
     'search',
     'analytics_app',
+    'chatbot.apps.ChatbotConfig',
+
 ]
 
 

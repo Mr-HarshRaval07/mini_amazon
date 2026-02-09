@@ -15,10 +15,11 @@ def register_view(request):
 
     if request.method == "POST":
 
+        name = request.POST.get("name", "").strip()   # 👈 NEW
         email = request.POST.get("email", "").strip()
         password = request.POST.get("password", "").strip()
 
-        if not email or not password:
+        if not name or not email or not password:
             messages.error(request, "All fields are required")
             return redirect("/register/")
 
@@ -34,8 +35,16 @@ def register_view(request):
             password=password
         )
 
+        # (optional but good) save name in Django user
+        user.first_name = name
+        user.save()
+
         # profile auto created by signal (safe fallback)
-        Profile.objects.get_or_create(user=user)
+        profile, created = Profile.objects.get_or_create(user=user)
+
+        # 🔥 AUTO SAVE NAME TO PROFILE
+        profile.full_name = name
+        profile.save()
 
         messages.success(request, "Account created! Please login.")
         return redirect("/login/")

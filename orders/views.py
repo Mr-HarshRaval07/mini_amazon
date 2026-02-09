@@ -99,7 +99,7 @@ def checkout(request):
             messages.error(request, "Enter valid 10 digit Indian mobile number")
             return redirect("/orders/checkout/")
 
-        # ================= STOCK CHECK FIRST =================
+        # ================= STOCK CHECK =================
 
         for item in items:
             if item.product.inventory < item.quantity:
@@ -109,7 +109,7 @@ def checkout(request):
                 )
                 return redirect("/orders/cart/")
 
-        # ================= CREATE ORDER =================
+        # ================= CREATE ORDER (NOT PAID YET) =================
 
         order = Order.objects.create(
             user=request.user,
@@ -117,7 +117,8 @@ def checkout(request):
             email=email,
             phone=phone,
             address=address,
-            status="Paid"
+            status="Pending",          # 🔥 changed
+            payment_status="Pending"  # 🔥 new field
         )
 
         total_items = 0
@@ -134,13 +135,14 @@ def checkout(request):
                 price_at_purchase=product.price
             )
 
+            # ⚠️ reduce stock only after payment (better practice)
+            # BUT since fake gateway, we keep it here
             product.inventory -= item.quantity
             product.save()
 
             total_items += item.quantity
             total_price += product.price * item.quantity
 
-        # ✅ Save totals
         order.total_items = total_items
         order.total_price = total_price
         order.save()
@@ -148,13 +150,13 @@ def checkout(request):
         # 🧹 Clear cart
         items.delete()
 
-        messages.success(request, "Order placed successfully 🎉")
-
-        return redirect("/orders/my-orders/")
+        # 🔥 REDIRECT TO PAYMENT PAGE
+        return redirect(f"/orders/payment/{order.id}/")
 
     return render(request, "orders/checkout.html", {
         "items": items
     })
+
 
 
 # ================= MY ORDERS =================
@@ -178,4 +180,61 @@ def order_detail(request, order_id):
 
     return render(request, "orders/order_detail.html", {
         "order": order
+    })
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+
+# ================= PAYMENT PAGE =================
+
+@login_required
+def payment_view(request, order_id):
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if request.method == "POST":
+
+        method = request.POST.get("method")
+
+        order.payment_method = method
+
+        # COD = not paid yet
+        if method == "COD":
+            order.payment_status = "Pending"
+            order.status = "Pending"
+        else:
+            order.payment_status = "Paid"
+            order.status = "Paid"
+
+        order.save()
+
+        messages.success(request, "Payment successful 🎉")
+        return redirect("/orders/my-orders/")
+
+    return render(request, "orders/payment.html", {
+        "order": order
+    })
+
+
+# ================= QR SUMMARY =================
+
+@login_required
+def qr_summary(request, order_id):
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    items = order.items.all()
+
+    if request.method == "POST":
+
+        order.payment_method = "QR"
+        order.payment_status = "Paid"
+        order.status = "Paid"
+        order.save()
+
+        messages.success(request, "Payment completed via QR 🎉")
+        return redirect("/orders/my-orders/")
+
+    return render(request, "orders/qr_summary.html", {
+        "order": order,
+        "items": items
     })

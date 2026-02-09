@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-from products.models import Product, Category
+from products.models import Product, Category, RecentlyViewed
 from django.core.paginator import Paginator
 
 
@@ -9,19 +9,14 @@ from django.core.paginator import Paginator
 def autocomplete(request):
     q = request.GET.get('q', '').strip()
 
-    products = Product.objects.filter(
-        name__icontains=q
-    )[:5]
+    products = Product.objects.filter(name__icontains=q)[:5]
 
-    data = [
-        {"id": p.id, "name": p.name}
-        for p in products
-    ]
+    data = [{"id": p.id, "name": p.name} for p in products]
 
     return JsonResponse(data, safe=False)
 
 
-# ================= SEARCH + CATEGORY + FILTER + SORT + PAGINATION =================
+# ================= SEARCH + FILTER + AUTO RECOMMEND =================
 
 def search_results(request):
 
@@ -32,7 +27,7 @@ def search_results(request):
     if q:
         products = products.filter(name__icontains=q)
 
-    # 📂 CATEGORY FILTER
+    # 📂 CATEGORY
     category_id = request.GET.get('category')
     if category_id:
         products = products.filter(category_id=category_id)
@@ -61,10 +56,30 @@ def search_results(request):
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
 
-    # 📁 GET ALL CATEGORIES (ORDERED)
+    # 📁 CATEGORIES
     categories = Category.objects.order_by('name')
+
+    # ================= AUTO RECOMMENDATION =================
+
+    # Recently viewed (user based)
+    recent_products = []
+
+    if request.user.is_authenticated:
+        recent_products = (
+            RecentlyViewed.objects
+            .filter(user=request.user)
+            .select_related('product')
+            .order_by('-viewed_at')[:6]
+        )
+
+    # Popular products (based on views)
+    popular_products = Product.objects.order_by('-views')[:6]
+
+    # =======================================================
 
     return render(request, 'products/home.html', {
         'products': products,
-        'categories': categories
+        'categories': categories,
+        'recent_products': recent_products,
+        'popular_products': popular_products
     })

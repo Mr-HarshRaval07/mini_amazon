@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-4">📊 Admin Analytics Dashboard</h3>
+
+<div class="row mb-4">
+
+<div class="col-md-4">
+  <div class="card p-3 shadow">
+    <h5>Total Revenue</h5>
+    <h3>₹{{ total_revenue }}</h3>
+  </div>
+</div>
+
+<div class="col-md-4">
+  <div class="card p-3 shadow">
+    <h5>Top Product</h5>
+    <h6>
+      {% if top_products %}
+        {{ top_products.0.product__name }} ({{ top_products.0.qty }} sold)
+      {% else %}
+        No sales yet
+      {% endif %}
+    </h6>
+  </div>
+</div>
+
+<div class="col-md-4">
+  <div class="card p-3 shadow">
+    <h5>AI Insight 🤖</h5>
+    <p>{{ insight }}</p>
+  </div>
+</div>
+
+</div>
+
+<div class="card p-4 shadow mb-4">
+  <h5>📈 Sales Over Time</h5>
+  <canvas id="salesChart" height="120"></canvas>
+</div>
+
+<div class="card p-4 shadow">
+  <h5>📦 Orders Over Time</h5>
+  <canvas id="ordersChart" height="120"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const salesData = JSON.parse('{{ sales_data|escapejs }}');
+const ordersData = JSON.parse('{{ orders_data|escapejs }}');
+
+const salesLabels = salesData.map(d => d.day);
+const salesTotals = salesData.map(d => d.total);
+
+const orderLabels = ordersData.map(d => d.day);
+const orderCounts = ordersData.map(d => d.count);
+
+// 📈 SALES GRAPH
+
+new Chart(document.getElementById("salesChart"), {
+  type: "line",
+  data: {
+    labels: salesLabels,
+    datasets: [{
+      label: "Revenue ₹",
+      data: salesTotals,
+      tension: 0.4
+    }]
+  }
+});
+
+// 📦 ORDERS GRAPH
+
+new Chart(document.getElementById("ordersChart"), {
+  type: "bar",
+  data: {
+    labels: orderLabels,
+    datasets: [{
+      label: "Orders",
+      data: orderCounts
+    }]
+  }
+});
+
+</script>
+
+{% endblock %}

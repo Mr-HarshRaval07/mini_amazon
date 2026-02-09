@@ -89,11 +89,15 @@ def product_detail(request, pk):
 
         # keep latest 5 only
         old_items = RecentlyViewed.objects.filter(
-            user=request.user
-        ).order_by("-viewed_at")[5:]
+        user=request.user
+        ).order_by('-id')
 
-        if old_items.exists():
-            old_items.delete()
+    if old_items.count() > 5:
+        ids_to_delete = old_items.values_list('id', flat=True)[5:]
+        RecentlyViewed.objects.filter(id__in=list(ids_to_delete)).delete()
+
+
+
 
     # -------- Recommendations --------
     recommendations = Product.objects.prefetch_related("images").filter(

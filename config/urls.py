@@ -6,10 +6,13 @@ from django.conf.urls.static import static # ✅ ADD
 
 urlpatterns = [
     path('', include('products.urls')),
-    path('', include('users.urls')),   # 👈 THIS LINE REQUIRED
+    path('', include('users.urls')),   # 
     path('orders/', include('orders.urls')),
     path('search/', include('search.urls')),
     path('admin/', admin.site.urls),
+    path("analytics/", include("analytics_app.urls")),
+    path('chatbot/', include('chatbot.urls')),
+
 ]
 
 

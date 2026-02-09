@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.payment-title{
+  font-size:1.8rem;
+  font-weight:800;
+  margin-bottom:20px;
+}
+
+.pay-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;
+}
+
+.pay-card{
+  background:var(--card);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  text-align:center;
+  transition:.3s;
+  cursor:pointer;
+  border:2px solid transparent;
+}
+
+.pay-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 15px 40px rgba(0,0,0,.18);
+}
+
+.pay-card.active{
+  border-color:var(--accent);
+}
+
+.pay-icon{
+  font-size:2.5rem;
+  margin-bottom:10px;
+}
+
+.pay-btn{
+  background:var(--accent);
+  border:none;
+  padding:10px 20px;
+  border-radius:12px;
+  font-weight:700;
+  margin-top:12px;
+}
+
+.pay-btn:hover{
+  opacity:.9;
+}
+
+/* QR box */
+
+.qr-box{
+  margin-top:40px;
+  text-align:center;
+  animation:fade .4s ease;
+}
+
+.qr-box img{
+  background:white;
+  padding:12px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+/* Card form */
+
+.card-box{
+  margin-top:40px;
+  max-width:400px;
+  animation:fade .4s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+</style>
+
+<h3 class="payment-title">Choose Payment Method</h3>
+
+<div class="pay-grid">
+
+<!-- QR -->
+
+<div class="pay-card" id="qrCard" onclick="showQR()">
+  <div class="pay-icon">📱</div>
+  <h5>QR Payment</h5>
+  <button class="pay-btn">Pay via QR</button>
+</div>
+
+<!-- CARD -->
+
+<div class="pay-card" id="cardCard" onclick="showCard()">
+  <div class="pay-icon">💳</div>
+  <h5>Card Payment</h5>
+  <button class="pay-btn">Pay via Card</button>
+</div>
+
+<!-- COD -->
+
+<div class="pay-card">
+
+  <div class="pay-icon">📦💵</div>
+  <h5>Cash On Delivery</h5>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="method" value="COD">
+    <button class="pay-btn w-100">Pay on Delivery</button>
+  </form>
+
+</div>
+
+</div>
+
+<!-- QR SECTION -->
+
+<div id="qrBox" class="qr-box" style="display:none">
+
+<h5 class="mb-3">Scan this QR</h5>
+
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=ORDER{{ order.id }}">
+
+<br><br>
+
+<button class="btn btn-success" onclick="goSummary()">
+Simulate Scan
+</button>
+
+</div>
+
+<!-- CARD SECTION -->
+
+<div id="cardBox" class="card-box" style="display:none">
+
+<form method="post">
+{% csrf_token %}
+<input type="hidden" name="method" value="CARD">
+
+<input class="form-control mb-2" placeholder="Card Number" required>
+<input class="form-control mb-2" placeholder="Expiry MM/YY" required>
+<input class="form-control mb-2" placeholder="CVV" required>
+
+<button class="btn btn-success w-100">
+Pay Now
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+function clearActive(){
+  document.getElementById("qrCard").classList.remove("active")
+  document.getElementById("cardCard").classList.remove("active")
+}
+
+function showQR(){
+  clearActive()
+  document.getElementById("qrCard").classList.add("active")
+
+  document.getElementById("qrBox").style.display="block"
+  document.getElementById("cardBox").style.display="none"
+}
+
+function showCard(){
+  clearActive()
+  document.getElementById("cardCard").classList.add("active")
+
+  document.getElementById("cardBox").style.display="block"
+  document.getElementById("qrBox").style.display="none"
+}
+
+function goSummary(){
+  window.location = "/orders/payment/qr/{{ order.id }}/"
+}
+
+</script>
+
+{% endblock %}
