@@ -75,29 +75,32 @@ def product_detail(request, pk):
     )
 
     # -------- Recently Viewed --------
+    # ✅ ALWAYS initialize
+    old_items = RecentlyViewed.objects.none()
+
     if request.user.is_authenticated:
 
+        # remove duplicate entry if exists
         RecentlyViewed.objects.filter(
             user=request.user,
             product=product
         ).delete()
 
+        # add new view
         RecentlyViewed.objects.create(
             user=request.user,
             product=product
         )
 
-        # keep latest 5 only
+        # fetch latest views
         old_items = RecentlyViewed.objects.filter(
-        user=request.user
-        ).order_by('-id')
+            user=request.user
+        ).order_by("-id")
 
-    if old_items.count() > 5:
-        ids_to_delete = old_items.values_list('id', flat=True)[5:]
-        RecentlyViewed.objects.filter(id__in=list(ids_to_delete)).delete()
-
-
-
+        # keep only latest 5
+        if old_items.count() > 5:
+            ids_to_delete = old_items.values_list("id", flat=True)[5:]
+            RecentlyViewed.objects.filter(id__in=list(ids_to_delete)).delete()
 
     # -------- Recommendations --------
     recommendations = Product.objects.prefetch_related("images").filter(
@@ -115,7 +118,8 @@ def product_detail(request, pk):
         "product": product,
         "recommendations": recommendations,
         "reviews": reviews,
-        "avg_rating": round(avg_rating, 1)
+        "avg_rating": round(avg_rating, 1),
+        "recently_viewed": old_items  # optional, safe
     })
 
 
